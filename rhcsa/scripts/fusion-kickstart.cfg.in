@@ -1,0 +1,80 @@
+# RHCSA Course — Copyright (C) 2026 Shea's Tech. AGPL-3.0-or-later.
+# Rendered by fusion-local-lab.py. The spare lab disk is NOT connected here.
+text
+cdrom
+lang @LANGUAGE@
+keyboard us
+timezone @TIMEZONE@ --utc
+rootpw --lock
+user --name=@USERNAME@ --groups=wheel --password=@PASSWORD_HASH@ --iscrypted
+network --device=@NAT_MAC@ --bootproto=dhcp --activate --onboot=yes --hostname=@NAME@ --bindto=mac
+network --device=@LAB_MAC@ --bootproto=static --ip=@IP@ --netmask=255.255.255.0 --noipv6 --nodefroute --activate --onboot=yes --bindto=mac
+firewall --enabled --service=ssh
+selinux --enforcing
+services --enabled=sshd,firewalld,vmtoolsd,NetworkManager,crond,rsyslog
+firstboot --disable
+skipx
+%pre --interpreter=/bin/bash --erroronfail --log=/tmp/rhcsa-pre.log
+set -euo pipefail
+trap 'echo "RHCSA disk check failed at line $LINENO" >&2' ERR
+udevadm settle --timeout=30
+# Use kernel sysfs, not formatted lsblk output; installer tools vary.
+[ -b /dev/nvme0n1 ] || { echo 'Expected NVMe system disk is missing'; exit 1; }
+[ "$(cat /sys/block/nvme0n1/size)" = 62914560 ] || {
+    echo 'System disk must be exactly 30 GiB'; exit 1;
+}
+for disk in /sys/block/*; do
+    name=${disk##*/}
+    case "$name" in
+        loop*|ram*|zram*|dm-*|sr*|fd*) continue ;;
+        nvme0n1) ;;
+        *) echo "Unexpected disk: $name. Refusing partitioning."; exit 1 ;;
+    esac
+done
+echo 'RHCSA: only the 30 GiB NVMe system disk is available; check passed.'
+%end
+ignoredisk --only-use=nvme0n1
+clearpart --all --initlabel --disklabel=gpt --drives=nvme0n1
+bootloader --boot-drive=nvme0n1
+part /boot/efi --fstype=efi --size=600 --ondisk=nvme0n1
+part /boot --fstype=xfs --size=1024 --ondisk=nvme0n1
+part pv.01 --size=1 --grow --ondisk=nvme0n1
+volgroup rl pv.01
+logvol swap --vgname=rl --name=swap --fstype=swap --size=2048
+logvol / --vgname=rl --name=root --fstype=xfs --size=4096 --grow
+%packages
+@core
+open-vm-tools
+openssh-server
+openssh-clients
+sudo
+firewalld
+NetworkManager
+lvm2
+vim-minimal
+man-db
+bash-completion
+cronie
+rsyslog
+rsync
+dnf-plugins-core
+parted
+dosfstools
+e2fsprogs
+xfsprogs
+policycoreutils-python-utils
+bind-utils
+%end
+%post --interpreter=/bin/bash --erroronfail --log=/root/rhcsa-post.log
+set -euo pipefail
+cat >> /etc/hosts <<'HOSTS'
+192.168.56.10 servera
+192.168.56.11 serverb
+HOSTS
+systemctl enable sshd firewalld vmtoolsd NetworkManager crond rsyslog
+# Retain ordinary wheel sudo policy: use the shea password for sudo.
+printf '%s\n' '@BUILD_ID@' > /etc/rhcsa-installed
+chmod 644 /etc/rhcsa-installed
+%end
+# Host waits for shutdown, disconnects the installer and boots the installed OS.
+poweroff

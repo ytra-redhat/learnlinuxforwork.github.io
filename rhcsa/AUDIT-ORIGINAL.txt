@@ -1,0 +1,633 @@
+CONTROLE LEARN LINUX FOR WORK — RHCSA
+Datum: 2 oktober 2026
+Doelomgeving: Rocky Linux 10.x aarch64, VMware Fusion op Apple Silicon.
+
+OORDEEL
+De cursus is bruikbaar als onderwerpenlijst, maar de opdrachten zijn niet
+betrouwbaar genoeg om zonder correcties als complete RHEL/Rocky 10-training te
+volgen. De problemen die je meldde zijn deels cursusfouten en deels typefouten.
+Fusion is niet aangetoond als oorzaak van de mislukte wachtwoordherstelprocedure.
+Er zijn wel concrete mismatches tussen de Fusion-installatie en de labs.
+
+LEESWIJZER EN BEPERKINGEN
+Hieronder staan alle twaalf weken, de algemene theorie en de labbouwers.
+Per bevinding staan de plaats, het probleem en de gewenste correctie.
+FOUT = uit de broncode, opdrachtenvolgorde of documentatie vaststelbaar.
+AFHANKELIJK = resultaat hangt af van pakketten, beleid of bestaande configuratie.
+ONVOLLEDIG = leerdoel wordt genoemd maar onvoldoende geoefend/gecontroleerd.
+ONBEVESTIGD = bewering waarvoor geen voldoende openbare onderbouwing is gevonden.
+
+Dit is een statische inhoudelijke controle met documentatieverificatie en
+syntaxcontroles. De labs zijn niet end-to-end in jouw VM's uitgevoerd. Er is
+geen installatie, partitionering, accountwijziging of cloudactie uitgevoerd.
+Vervangende opdrachten staan in CORRECTIES-ROCKY10-FUSION.txt. Die zijn eveneens
+geen claim dat alle scenario's al in de gasten zijn getest.
+
+ONDERZOCHTE INHOUD
+- data/rhcsa.json: volledige cursusstructuur, twaalf weken, 99 checklisttaken,
+  theorie, certificeringsadvies, hardwareadvies, kosten en bronnen.
+- tools/build_labs.py: alle twaalf labdefinities, uitleg, opdrachten, controles
+  en break/fix-oefeningen; lab/week-01.html t/m week-12.html.
+- README.md, FUSION.md en VALIDATION.md; alle actuele labbouwscripts,
+  Fusion-Kickstart, startbestand en publicatiescript setup.sh.
+- Vier cloudpagina's en de manier waarop opdrachten worden weergegeven.
+- Ingesloten before-* bestanden zijn oude backups, geen aanbevolen startpunt.
+
+De 99 taken zijn geteld, niet als 99 afzonderlijke foutmeldingen opgevoerd.
+De onderstaande bevindingen groeperen samenhangende problemen.
+Bronlocaties verwijzen naar de uitgepakte map learnlinuxforwork/rhcsa.
+Bij tools/build_labs.py staat een hele meerregelige opdracht vaak op één
+Python-bronregel; het genoemde regelnummer verwijst naar die definitie.
+
+ALGEMENE THEORIE EN LEERPLAN
+
+G01 — FOUT/ONBEVESTIGD: uitspraken over examenpunten en slagingsstatistiek.
+Plaats: data/rhcsa.json, overview.note, exam.implications, costs.note,
+examday.tips en examday.note; tools/build_labs.py, week 12 en algemene footer.
+De cursus presenteert 'no partial credit', 'half-finished task scores nothing',
+'security/storage carry the most weight' en 'most people ... pass the second
+time' als feiten. De openbare EX200-doelen onderbouwen die puntentoekenning,
+weging en slagingsstatistiek niet. Blijvende configuratie is wél een officieel
+vereiste. Maak onderscheid tussen een strenge eigen oefenscore en officiële
+examenscoring; verwijder onbevestigde cijfers en ranglijsten. [S1]
+
+G02 — ONVOLLEDIG: onderwerpen noemen is geen volledige oefendekking.
+Plaats: data/rhcsa.json, coverage en weeks; README.md.
+De map claimt volledige dekking. Er ontbreken uitgewerkte opdrachten voor
+tekstbewerking met een editor, info-documentatie, userdel/groupdel, GPT-partities
+verwijderen en mounten via LABEL. CDN-toegang vereist een aparte RHEL-route.
+De PV-verwijdering is alleen een commentaarvoorbeeld. De systeemwijde umask
+wordt alleen opgezocht. De mock test niet alle domeinen.
+Voeg opdrachten én resultaatcontroles toe voor deze lacunes.
+De officiële indeling heeft tien categorieën; de cursus splitst sommige over
+meerdere weken. Dat is op zichzelf geen fout. [S1]
+
+G03 — FOUT: installatiepad en architectuuradvies spreken elkaar tegen.
+Plaats: data/rhcsa.json, homelab.groups Step 4, regels 339-356;
+scripts/build-local-lab.sh, regels 42-48 en 75-104.
+Theorie noemt /rhcsa-labs en een x86_64-download. Het actuele Linux-script
+gebruikt ~/rhcsa-labs maar eist juist aarch64, zelfs voor x86_64 VirtualBox en
+Workstation. Die combinatie kan niet normaal op x86-hardware virtualiseren.
+Splits macOS/ARM en Linux/x86 expliciet; selecteer de ISO op hostarchitectuur.
+
+G04 — FOUT: verouderde hypervisorinformatie.
+Plaats: data/rhcsa.json, homelab en resources.
+'VirtualBox does not run' op Apple Silicon is te absoluut: Oracle beschrijft
+Arm64-gasten op Apple Silicon in VirtualBox 7.2. Dit bewijst niet dat het
+bijgevoegde VBox-script daar geschikt voor is. VMware is ook voor commercieel
+en onderwijsgebruik gratis, niet uitsluitend persoonlijk gebruik. De zin dat
+'any of these hypervisors' op een Linux-host draait klopt evenmin voor Fusion
+en UTM. Vermijd onbewezen algemene prestatievergelijkingen. [S6, S7]
+
+G05 — AFHANKELIJK: Rocky en RHEL zijn geen gegarandeerd identieke omgeving.
+Plaats: data/rhcsa.json, homelab Step 2 en resources.
+Rocky is een geschikte oefenomgeving, maar repositories, subscription-manager,
+patchniveau en standaardpakketselectie kunnen verschillen. De cursus noemt
+CDN/subscription-manager al als uitzondering; breid dat uit naar de overige
+afhankelijkheden. Kleine VM's en 8 GB host-RAM zijn een richtlijn, geen garantie.
+Intel/T2-Macs zijn ook niet zonder modelcontrole gegarandeerd probleemloos.
+
+G06 — ONVOLLEDIG/ONBEVESTIGD: aanvullende certificeringen en kosten.
+Plaats: data/rhcsa.json, certs, costs, verify en resources.
+Linux+ na week 6 en LFCS na week 9 suggereren meer voorbereiding dan deze
+RHCSA-labs leveren: scripting, netwerken, opslag en security komen pas later
+of zijn niet volledig gedekt. Vergelijk elk examen apart met zijn doelen.
+LFCS kost op de geraadpleegde officiële pagina $445, niet de genoemde ~$395.
+De LFCS-simulator via killer.sh bestaat wél en wordt officieel meegeleverd;
+die cursusclaim is dus niet als fout aangemerkt. Overige prijzen, $20/maand,
+verzending en aanbiedersbeloften zijn geen gegarandeerde actuele offerte.
+Vermeld valuta, regio, belasting, peildatum en aankoopbron. [S8, S9]
+
+G07 — ONVOLLEDIG: DoD 8140 wordt te sterk als certificatenpaar samengevat.
+Plaats: data/rhcsa.json, certs.dod.
+RHCSA + Security+ geeft niet automatisch recht op een privileged account.
+DoDM 8140.03 onderscheidt werkrollen, foundational qualification-alternatieven,
+resident qualification en doorlopende ontwikkeling. Contractspecifieke eisen
+kunnen erbij komen. De bestaande disclaimer is zinvol, maar de stellige
+'pairing that unlocks' tekst en IAT-verwijzing passen onvoldoende bij die
+nuance. De biografische en arbeidsmarktclaims zijn niet als technische feiten
+of bewezen statistiek gecertificeerd. [S10]
+
+WEEK 1 — ESSENTIAL TOOLS AND THE SHELL
+De basisopdrachten voor navigatie, redirection, grep, bestanden, links en
+permissies zijn inhoudelijk bruikbaar.
+
+W01 — ONVOLLEDIG: archiveren en documentatie.
+Plaats: tools/build_labs.py, regels 86-97 en 111-120.
+Er worden gzip- en bzip2-tararchieven gemaakt, maar alleen gzip wordt uitgepakt.
+tar is een archiver, niet zelf een compressiealgoritme; 'all three compression
+tools' is slordig. Voeg bzip2 uitpakken, los gzip/gunzip, bzip2/bunzip2, een
+ongecomprimeerd tararchief en info toe. Oefen werkelijk een teksteditor.
+
+W02 — FOUT: onduidelijke shell-/hostwisselingen.
+Plaats: tools/build_labs.py, regels 99-108.
+Na interactieve ssh blijf je op serverb. Daarna openen su en sudo extra shells;
+één exit sluit alleen de root-shell. De volgende stappen/controles kunnen zo
+op de verkeerde host of in het verkeerde account terechtkomen.
+Vermeld steeds host/account en laat elke extra shell expliciet afsluiten.
+
+WEEK 2 — USERS, GROUPS AND PRIVILEGED ACCESS
+useradd, wachtwoordveroudering, groepen en setgid zijn grotendeels correct.
+
+W03 — ONVOLLEDIG: setgid alleen maakt bestanden niet gezamenlijk beschrijfbaar.
+Plaats: tools/build_labs.py, regels 158-167.
+Setgid zorgt voor groepsvererving. De umask kan groepsschrijfpermissie alsnog
+wegnemen. Voeg een passende umask/default ACL en een schrijfproef door analyst2
+toe. Laat de test ook verschillen tussen primaire en aanvullende groep zien.
+
+W04 — FOUT: beperkt sudo-recht wordt door eerder breed recht overruled.
+Plaats: tools/build_labs.py, regels 169-176.
+analyst2 is lid van engineering, dat al ALL krijgt. Een extra NOPASSWD-regel
+beperkt die gebruiker niet tot sshd herstarten; het overige recht blijft.
+Gebruik een aparte gebruiker buiten engineering en geef die eerst een
+bruikbaar wachtwoord als wachtwoordauthenticatie onderdeel van de test is.
+Test toegestaan én geweigerd gedrag, niet uitsluitend sudo -l.
+
+W05 — ONVOLLEDIG: beheer-/herstelstappen en formulering.
+Plaats: tools/build_labs.py, week 2; data/rhcsa.json, week 2.
+userdel, groupdel, /etc/skel en useradd -D ontbreken als oefenstappen.
+'Never use usermod -G without -a' moet worden 'gebruik -aG om toe te voegen;
+-G zonder -a vervangt bewust de lijst'. Bereid vóór de sudoers-breakfix een
+open root-shell voor; sudo kan afhankelijk van parser/configuratie nog deels
+werken. 'May start refusing' in het origineel is terecht voorwaardelijk.
+Let op: id analyst1 analyst2 is geldige moderne GNU-id-syntax; geen fout. [S11]
+
+WEEK 3 — SOFTWARE, RPM, REPOSITORIES AND FLATPAK
+
+W06 — FOUT: lokale RPM-download en installatie gebruiken andere directories.
+Plaats: tools/build_labs.py:215; lab/week-03.html, From a local file.
+dnf download nmap zonder --destdir downloadt in de huidige directory. Bij succes
+wordt de fallback overgeslagen; daarna zoekt installatie ten onrechte in /tmp.
+Installeer de plugin expliciet en download naar één eigen tijdelijke map met
+--destdir. Verberg de foutuitvoer niet. [S5]
+
+W07 — FOUT: lokale repository bestaat niet.
+Plaats: tools/build_labs.py:221-251.
+file:///mnt/repo wordt geactiveerd zonder directory, packages of repodata aan
+te maken. Ook de 'fix' herstelt slechts naar deze nog steeds ongeldige locatie.
+Dit kan volgende pakketinstallaties blokkeren. Bouw eerst een repository met
+createrepo_c, of mount de DVD en gebruik de werkelijke BaseOS/AppStream-paden.
+Controleer met makecache en een uitsluitend uit die repo gelezen pakketlijst.
+dnf repolist alleen bewijst niet dat de metadata bruikbaar is.
+
+W08 — FOUT/AFHANKELIJK: controles en prerequisites voor software.
+Plaats: tools/build_labs.py:206, 223-225, 241-251.
+Installeer dnf-plugins-core vóór download/config-manager. Quote de zoekglob
+'*/htop'; htop is niet gegarandeerd beschikbaar in de standaardrepos.
+nmap wordt na verwijderen opnieuw lokaal geïnstalleerd, terwijl de eindcontrole
+nog 'correctly removed' verwacht. Kies één gewenste eindtoestand.
+Niet iedere DNF-handeling vereist metadata; 'breaks every dnf operation' en
+'clean all ... almost always necessary' zijn te absoluut.
+Een check-update-exitcode 100 betekent beschikbare updates, geen gewone fout.
+
+W09 — AFHANKELIJK/ONVOLLEDIG: Flatpak-resultaat onvoldoende aangetoond.
+Plaats: tools/build_labs.py:230-242.
+Remote/install/remove zijn passend, maar een GUI-app met --help uitvoeren op
+een tekstserver bewijst geen werkende GUI-sessie. Vermeld runtime, downloadruimte,
+architectuur en eventuele sessievereisten; inspecteer flatpak info --user.
+RPM hoeft niet altijd als root in de gebruikelijke systeemdatabase te worden
+geïnstalleerd; Flatpak deelt runtimes, dus 'self-contained' is vereenvoudigd.
+De HTML en generator verschillen bij deze week in zoekterm en --user-vlaggen.
+Werk de bron én gegenereerde pagina samen bij.
+
+WEEK 4 — PROCESSES, TUNING AND SCHEDULED TASKS
+
+W10 — AFHANKELIJK: at-inspectie is gevoelig voor timing en andere jobs.
+Plaats: tools/build_labs.py:300.
+Na één minuut kan de job al uit de queue zijn; eerste queue-entry kan een
+andere job zijn. Gebruik tien minuten, lees het zojuist gemelde jobnummer,
+controleer dat en leer ook atrm. De originele pipeline bevat wel degelijk
+'| awk'; jouw eerdere atq '{print $1}' was een afzonderlijke typefout.
+
+W11 — AFHANKELIJK: cron en procesbeëindiging.
+Plaats: tools/build_labs.py:276-310; Fusion-Kickstart %packages.
+Zorg expliciet voor cronie en enable --now crond; ga niet uit van een bepaalde
+@core-pakketselectie. pkill sleep/sha256sum kan ook andere processen treffen.
+Bewaar $! per gestart labproces en kill het betreffende PID. Een lagere nice
+waarde instellen vereist passende bevoegdheden; tuned-profielen passen niet
+automatisch bij iedere VM/host.
+
+W12 — FOUT: timer-breakfix levert niet gegarandeerd de beschreven fout.
+Plaats: tools/build_labs.py:318, 331-334.
+OnUnitActiveSec=nonsense wordt door systemd als ongeldige waarde genegeerd;
+OnBootSec=2min blijft geldig. Er is bovendien geen restart in de break-stap.
+Dat is geen betrouwbare oefening voor een timer die volledig faalt.
+Maak de bijbehorende service doelbewust defect, start die en controleer failed;
+gebruik systemd-analyze verify en herstel daarna de service. [S4]
+
+WEEK 5 — BOOT, TARGETS, SERVICES AND RECOVERY
+
+W13 — FOUT/AFHANKELIJK: oudere rd.break-procedure als universele RHEL10-route.
+Plaats: tools/build_labs.py:362-375; scripts/fusion-kickstart.cfg.in:8.
+De installer zet rootpw --lock. Daarnaast documenteert Red Hat voor RHEL10 dat
+chroot in initramfs bij rd.break kan ontbreken. Je screenshots tonen dat de
+shelltoegang geweigerd wordt; een normale root-status P bewijst niet dat de
+initramfs-shell beschikbaar is. De precieze oorzaak in jouw initramfs is niet
+vastgesteld. Een rootwachtwoord opnieuw zetten is dus geen bewezen oplossing.
+Gebruik een expliciet beschreven init=/bin/bash-route voor dit Rocky10-lab.
+Daar is de echte root /: remount / en geen chroot /sysroot. Gebruik /sysroot
+alleen in de daadwerkelijk passende initramfs-omgeving. [S2, S3]
+
+W14 — ONVOLLEDIG: GRUB-wijziging en controle.
+Plaats: tools/build_labs.py:381-386.
+De sed-opdracht in het cursusbestand is syntactisch correct. Jouw variant mist
+de scheiding vóór GRUB_TIMEOUT=10 en geeft terecht 'unterminated s command'.
+Een timeout is geen kernelparameter, hoewel de paragraaf dat aankondigt.
+grep -m1 timeout kan timeout_style of een andere voorwaarde vinden, en grubby
+controleert de kernelentries, niet de menuwachttijd. Controleer de effectieve
+GRUB-configuratie en het menu na reboot; behandel verborgen-menu-instellingen
+afzonderlijk. Voeg een echte grubby-kernelargumentoefening toe.
+Behoud /boot/grub2/grub.cfg als uitvoer; overschrijf niet blind een EFI-stub.
+
+W15 — AFHANKELIJK: targets en root-lock.
+Plaats: tools/build_labs.py, week 5 en week 8 breakfix.
+rescue/emergency kunnen om rootauthenticatie vragen. Licht dit toe vóór de
+oefening en regel consoleherstel. multi-user isoleren vanuit een systeem dat
+daar al in zit demonstreert geen echte overgang. De sshd-herstelopdracht via
+de VM-console is correct; een console is noodzakelijk bij dit scenario.
+
+WEEK 6 — LOGS, JOURNALS AND TIME
+
+W16 — FOUT: /etc/systemd/journald.conf wordt verondersteld te bestaan.
+Plaats: tools/build_labs.py:423, 462-464.
+Dat bestand ontbreekt in jouw installatie. sed -i maakt het niet aan; bij een
+anders gespatieerde of ontbrekende Storage-regel wijzigt het evenmin iets.
+Gebruik /etc/systemd/journald.conf.d/99-persistent.conf met een [Journal]-sectie,
+Storage=persistent, tmpfiles en journalctl --flush. Controleer eventuele andere
+drop-ins en bewijs persistentie met een eigen marker vóór/na reboot. [S12]
+
+W17 — FOUT: volatile-opslag verwijdert bestaande historische logs niet.
+Plaats: tools/build_labs.py:462-465.
+Storage=volatile laat bestaande persistente journals staan. Het beloofde
+verdwijnen van alle eerdere boots is geen betrouwbaar gevolg.
+Test een nieuwe marker in een volledig volatile boot en kijk na de volgende
+reboot of juist die marker ontbreekt. Bewaar bestaande oefenlogs. [S12]
+
+W18 — AFHANKELIJK: logging- en transferprerequisites.
+Plaats: tools/build_labs.py:431-436 en 448-453.
+/var/log/messages en secure vereisen een passende rsyslog-configuratie.
+Installeer/start rsyslog en rsync expliciet waar nodig; rsync moet op beide
+hosts beschikbaar zijn. Een vaste tijdsfilter in augustus 2026 kan terecht
+niets vinden. De shell-glob /var/log/journal/* wordt door de gewone gebruiker
+uitgebreid; gebruik sudo find voor een betrouwbare inspectie.
+
+W19 — AFHANKELIJK: chrony en tijdzone.
+Plaats: tools/build_labs.py:442-446.
+Alleen pool-regels verwijderen laat bestaande server/sourcedir-bronnen staan.
+Dan is niet bewezen dat de nieuwe server geselecteerd wordt. Vijf seconden
+garandeert geen synchronisatie; controleer sources -v, tracking en eventueel
+waitsync met een begrensde wachttijd. Vermeld netwerk/DNS/NTP-bereikbaarheid.
+America/New_York is een voorbeeld; voor jouw lab kan Europe/Amsterdam passend
+zijn. VM-hosttijdsync kan met tijdexperimenten interfereren; diagnoseer dit
+apart en presenteer het niet als bewezen oorzaak van rd.break.
+
+WEEK 7 — NETWORKING AND FIREWALL
+
+W20 — FOUT: eerste actieve connection is geen veilige adapterselectie.
+Plaats: tools/build_labs.py:487-490.
+head -1 kan NAT of loopback selecteren. Daarna wordt die verbinding vervangen
+door het private adres. 192.168.56.1 is bij host-only ook geen gegarandeerde
+internetgateway. Selecteer de labverbinding via device/MAC/UUID, laat NAT voor
+de default route/DNS zorgen en zet never-default op host-only.
+Voer wijzigingen via de VM-console uit om een SSH-onderbreking op te vangen.
+
+W21 — FOUT/ONVOLLEDIG: IPv6- en naamresolutietests.
+Plaats: tools/build_labs.py:497, 505.
+ping6 ::1 test uitsluitend loopback, niet het ingestelde IPv6-adres of de peer.
+Configureer serverb en ping het peeradres. 2001:db8::/32 is een documentatie-
+prefix, bruikbaar als geïsoleerd voorbeeld, niet voor publiek routen.
+nslookup serverb raadpleegt DNS, niet /etc/hosts; getent is hier de passende
+hostdatabasecontrole. Zorg voor bind-utils voor dig/nslookup.
+
+W22 — FOUT: firewall-breakfix breekt geen reeds permanente HTTP-regel.
+Plaats: tools/build_labs.py:518 en 532-535.
+HTTP is eerder permanent geopend. Nogmaals runtime HTTP toevoegen verdwijnt
+daarom niet effectief na reload. Gebruik een andere, aantoonbaar alleen runtime
+toegevoegde testpoort of verwijder eerst de permanente testregel.
+Een open firewallregel bewijst bovendien niet dat een webserver luistert.
+
+W23 — AFHANKELIJK/ONVOLLEDIG: zones en koptekst.
+Plaats: tools/build_labs.py:513-526.
+Zonder --zone wordt de default zone bewerkt, mogelijk niet de zone van het
+labdevice. Selecteer de juiste actieve zone en test vanaf serverb.
+De koptekst zegt 'change the default zone', maar er staat geen set-default-zone.
+--permanent plus reload is een goede aanpak, maar runtime-to-permanent is ook
+geldig; het is niet de enige manier om persistentie te bereiken.
+
+WEEK 8 — PARTITIONS, FILESYSTEMS AND SWAP
+
+W24 — FOUT: partitienamen zijn niet geschikt voor Fusion-NVMe.
+Plaats: tools/build_labs.py:552-594; fusion-local-lab.py:196-207.
+Bij /dev/nvme0n2 heet partitie 1 /dev/nvme0n2p1, niet /dev/nvme0n21.
+${DISK}1 werkt wel voor /dev/sdb, niet voor NVMe/mmc. Gebruik expliciete P1-P6
+variabelen op basis van de werkelijk geselecteerde lege oefenschijf.
+
+W25 — FOUT: 'blkid van disk is leeg' bewijst geen lege schijf.
+Plaats: tools/build_labs.py:552.
+Een disk zonder eigen filesystemsignatuur kan gevulde partities bevatten.
+Lees lsblk, partitietabel, mounts en wipefs -n op disk én partities. mklabel gpt
+vernietigt de bestaande partitietabel; laat de oefening die impact expliciet
+melden en stel de juiste extra schijf vast vóór die opdracht.
+
+W26 — ONVOLLEDIG: dependencies, fstab-controle en ontbrekende oefeningen.
+Plaats: tools/build_labs.py, week 8.
+Zorg voor parted, xfsprogs, e2fsprogs en dosfstools waar nodig. Voeg label-mount
+en verwijderen van een afzonderlijke ongebruikte testpartitie toe.
+mount -a alleen controleert geen swaps en kan reeds gemounte entries overslaan.
+Gebruik ook findmnt --verify --verbose, swapon -a en een rebootcontrole.
+Voor ext4 is fstab-checkpass 2 gebruikelijk; 0 is geen syntaxisfout maar schakelt
+die bootcontrole uit. Voer daemon-reload uit na fstab-wijzigingen.
+De ghost-breakfix moet een helder herstelpad bieden als root nog locked is.
+
+WEEK 9 — LVM, NFS AND AUTOFS
+
+W27 — FOUT: DISK-variabele is niet beschikbaar na de verplichte reboot.
+Plaats: tools/build_labs.py:621.
+Week 9 gebruikt $DISK uit week 8 zonder hem opnieuw te zetten. Shellvariabelen
+overleven een reboot niet. Initialiseer en controleer DISK/P5/P6 opnieuw.
+
+W28 — FOUT: partitie-einde 10GiB past niet op de geleverde 10GiB-schijf.
+Plaats: tools/build_labs.py:621; fusion-local-lab.py, ensure_disk.
+Een exact 10GiB-device eindigt vóór de bytepositie 10GiB en moet ruimte voor
+de backup-GPT behouden. Bij een decimale 10GB-schijf is het tekort nog groter.
+Gebruik bijvoorbeeld 8GiB tot 100% voor de laatste partitie na capaciteitstest.
+
+W29 — FOUT/ONVOLLEDIG: LVM-herstel en opruimen.
+Plaats: tools/build_labs.py:650 en 693-697.
+De teardown-commentaren verwijderen het LV zonder de permanente fstab-entry
+te verwijderen; een volgende boot kan daardoor mislukken.
+De +5G-oefening vraagt meer vrije ruimte dan beschikbaar, maar VFree is niet
+noodzakelijk nul. Er blijft op de 10GiB-schijf geen onbezet gebied voor de
+voorgestelde nieuwe PV. Geef een derde disk of een kleinere groei als oplossing.
+Behandel ext4-krimp als offline procedure, niet alleen als tegenhanger van XFS.
+
+W30 — FOUT/AFHANKELIJK: NFS-export is onnodig ruim en overschrijft configuratie.
+Plaats: tools/build_labs.py:656.
+*(rw,sync,no_root_squash) plus chmod 777 staat veel meer toe dan de leesproef
+nodig heeft. Maak een alleen-lezen export voor de labpeer of werk met een
+afgebakend subnet, root_squash en passende gedeelde UID/GID-permissies.
+Gebruik /etc/exports.d/rhcsa.exports in plaats van heel /etc/exports te vervangen.
+Op een cloudhost zijn netwerkfirewalls daarnaast essentieel.
+
+W31 — FOUT/ONVOLLEDIG: _netdev en autofs-uitleg.
+Plaats: tools/build_labs.py:664-677.
+systemd herkent NFS al als netwerkfilesystem. _netdev is toegestaan maar niet
+de reden dat een NFS-mount überhaupt de juiste netwerkordering krijgt.
+Het garandeert evenmin bereikbaarheid van de server. [S13]
+df kan filesystemtoegang veroorzaken en is geen ideale passieve autofs-test.
+Gebruik findmnt/mountinfo vóór toegang, ls voor triggeren, een benoemde timeout
+en controle na inactiviteit zonder cwd/open files onder het mountpunt.
+
+WEEK 10 — SELINUX, SSH KEYS AND UMASK
+
+W32 — FOUT: verkeerde positie van het SELinux-type.
+Plaats: tools/build_labs.py:716.
+user:role:type:level — type is het derde veld, niet het vierde. Het vierde
+beschrijft het security level/range. Corrigeer theorie en controlevragen. [S14]
+
+W33 — AFHANKELIJK: semanage wordt vóór installatie gebruikt.
+Plaats: tools/build_labs.py:719 en 731.
+Installeer policycoreutils-python-utils vóór section 2, en controleer audittools.
+Verberg installatiefouten voor diagnostiek niet met 2>/dev/null.
+
+W34 — FOUT: Apache-authorisatie ontbreekt bij nieuwe DocumentRoot.
+Plaats: tools/build_labs.py:725-731.
+Alleen DocumentRoot vervangen en SELinux-labels herstellen is onvoldoende bij
+een standaardconfiguratie die toegang tot overige directories weigert.
+Voeg <Directory /srv/mysite> met Require all granted toe, controleer configtest
+en test HTTP-status én inhoud. Houd UNIX-permissies, Apache-authorisatie en
+SELinux als drie afzonderlijke mogelijke oorzaken van 403. [S15]
+
+W35 — AFHANKELIJK: SELinux-portlabel en boolean.
+Plaats: tools/build_labs.py:737-755.
+Een restart op 8888 hoeft niet te falen als het portlabel al geschikt is of
+SELinux niet enforcing is. semanage port -a kan falen bij een al bestaande
+toewijzing. Inspecteer alle labels eerst; gebruik -m alleen als bewust wijzigen
+van een bestaande toewijzing gewenst is. Leg de impact op andere services uit.
+httpd_enable_homedirs is een aparte booleanoefening, geen oplossing voor /srv.
+
+W36 — FOUT: SELinux-breakfix herhaalt een bestaande fcontext-regel.
+Plaats: tools/build_labs.py:803-807.
+De break-stap voert meteen restorecon uit en herstelt dus al het label.
+Daarna probeert de fix opnieuw dezelfde semanage fcontext -a toe te voegen;
+dat faalt bij de bestaande definitie. Gebruik restorecon alleen, of wijzig een
+bestaande regel met -m wanneer die werkelijk verkeerd is.
+chcon wordt door relabel/restorecon teruggezet, niet automatisch bij elke reboot.
+
+W37 — FOUT/AFHANKELIJK: SSH-authenticatie wijzigen en testen.
+Plaats: tools/build_labs.py:765-778.
+De Fusion-gebruiker heeft gewone wachtwoord-sudo. ssh zonder tty kan het
+remote sudo-wachtwoord niet interactief vragen; gebruik ssh -t of wijzig
+de configuratie in een interactieve remote shell.
+Valideer sshd -t en inspecteer sshd -T; een drop-in kan de hoofdfile-instelling
+eerder bepalen. Behoud een bestaande sessie en test een nieuwe verbinding.
+'Key auth works' na gewone ssh bewijst niets als wachtwoordfallback lukt:
+gebruik BatchMode=yes en PasswordAuthentication=no bij de test.
+700/600 zijn goede instellingen, maar 'must be exactly' is te absoluut:
+eigenaarschap en ontbreken van ongewenste schrijfpermissies zijn bepalend.
+ssh-keygen met vaste bestaande keynaam kan bovendien om overschrijven vragen.
+
+W38 — FOUT/ONVOLLEDIG: umask-uitleg en persistentie.
+Plaats: tools/build_labs.py:784-796.
+umask is een bitmasker, geen gewone aftrekking. Bij 033 geeft een file met
+gevraagde 666 bijvoorbeeld 644, niet 633. De voorbeelden 077 -> 600/700 kloppen.
+touch verandert bestaande files niet; test met nieuwe bestanden.
+~/.bashrc betreft shells die dat bestand lezen, niet automatisch alle processen.
+Voeg een systeemwijde instelling toe en test nieuwe login-/non-login-shells.
+
+WEEK 11 — SHELL SCRIPTING
+Shebang, conditionals, eenvoudige loops en command substitution zijn passend.
+
+W39 — FOUT: niet alle variabelen worden veilig gequote.
+Plaats: tools/build_labs.py:847 en 859.
+basename $FILE, wc -l < $FILE en basename $0 kunnen met spaties falen.
+Gebruik quotes en basename --; controleer leesbaarheid en een lege globmatch.
+Gebruik IFS= read -r om whitespace exact te behouden bij een lijnleesoefening.
+Echo van "$@" is geen duidelijke weergave van argumentgrenzen; printf per
+argument is leerzamer.
+
+W40 — FOUT: args.sh valideert aantal argumenten, maar niet count.
+Plaats: tools/build_labs.py:859.
+seq met niet-numerieke invoer faalt; de omringende lege loop kan toch een
+successtatus opleveren. Valideer een passend positief geheel getal, begrens
+eventueel de omvang en gebruik een rekenkundige loop met expliciete exit.
+Test ontbrekende, geldige, niet-numerieke en whitespace-bevattende invoer.
+compare.sh meldt bij nul sessies ten onrechte 'Only one session'.
+Het uptime-parservoorbeeld hangt bovendien van de taalinstelling af;
+de Fusion-wizard biedt Nederlands. Gebruik LC_ALL=C voor tekstparsing.
+
+WEEK 12 — MOCK EXAM AND REMEDIATION
+
+W41 — ONVOLLEDIG: zelfgemaakte mock is geen compleet of officieel examen.
+Plaats: tools/build_labs.py:907-935.
+De zestien taken zijn nuttig, maar missen onder meer Flatpak/repositorybeheer,
+NFS/autofs, IPv6 en tijdconfiguratie. Drie uur is de oefenlimiet in deze cursus,
+geen hier geverifieerde officiële duur voor iedere EX200-examenvorm.
+Voeg een afzonderlijk antwoord-/verificatieblad toe, geef welke lege disk en
+netwerkverbinding gebruikt mogen worden en vermeld eigen oefenpuntentoekenning.
+Leg beschikbaarheid van console, softwarebronnen en tweede host vast.
+Een mock-pass garandeert geen EX200-pass of dekking van alle scenario's.
+
+LABBOUWERS, WEBSITE EN INSTALLATIE
+
+B01 — FOUT: Linux-optieparser en destroy-pad.
+Plaats: scripts/build-local-lab.sh:55-105 en 164-207.
+Bij ontbrekende optiewaarde kan shift 2 falen zonder de loop te verlaten.
+ISO-detectie/-validatie gebeurt vóór destroy, zodat verwijderen onterecht een
+ISO kan vereisen. De Linux-Workstation-route behandelt DESTROY niet en gaat
+VM-bestanden aanmaken in plaats van verwijderen. Implementeer apart en veilig.
+
+B02 — FOUT/AFHANKELIJK: Linux-VMware en foutafhandeling.
+Plaats: scripts/build-local-lab.sh, build_vmware.
+Er is geen bescherming tegen bestaande VMX-/diskbestanden zoals in de nieuwe
+Fusion-helper. Disktool-output wordt verborgen; mkdir/configgeneratie kan
+doorgaan na een falende diskcreatie. --destroy en opnieuw uitvoeren moeten
+alleen aantoonbaar eigen resources raken. Controleer alle retourcodes en laat
+geen 'created' zien voordat de benodigde resources werkelijk bestaan.
+
+B03 — FOUT/ONVOLLEDIG: accountkeuze en gereedheidscontrole in Fusion.
+Plaats: scripts/fusion-local-lab.py, wizard en guest_ready; FUSION.md;
+tools/build_labs.py:22.
+De wizard laat een andere username kiezen, maar alle cursuscommando's gebruiken
+shea. Parameteriseer de labs of vermeld de vervanging overal.
+De guest-check verifieert OS, enkele services, adressen en diskcapaciteit, maar
+niet alle pakketten, peer-SSH, DNS, externe repos, cron of de cursuslabs.
+Een gerapporteerde 'ready' betekent daarom geen volledige cursusvalidatie.
+De herstartcheck eist nog een onverdeelde nvme0n2; na week 8 is dat niet langer
+de verwachte situatie. Maak onderscheid tussen installatie- en cursusfase.
+
+B04 — AFHANKELIJK: Fusion-configuratie en wachtwoorden.
+Plaats: fusion-kickstart.cfg.in; fusion-local-lab.py.
+De eigen VMX-/diskbescherming, tijdelijke diskpublicatie en ISO-readback zijn
+goede voorzieningen. Netwerk werkt alleen als het host-only-segment bij beide
+VM's overeenkomt; de adressen zijn hardcoded. Root begint locked en het
+toetsenbord is US, ook bij Nederlandse taalkeuze. Licht beide expliciet toe.
+--yes zonder RHCSA_PASSWORD gebruikt rhcsa: een zwak standaardlabwachtwoord.
+vmrun krijgt het gastwachtwoord via -gp als procesargument; het openssl-hashen
+via stdin voorkomt die afzonderlijke blootstelling niet.
+Geen nieuwe end-to-end Fusion-installatie uitgevoerd voor deze audit.
+
+B05 — FOUT: containerdiensten worden alleen enabled, niet gestart.
+Plaats: scripts/build-podman-lab.sh:73-90.
+systemctl enable sshd crond gebeurt nadat de container al is gestart; dat start
+de services niet. Gebruik enable --now en inspecteer is-active.
+Pakket-/accountfouten worden verborgen en met || true genegeerd, terwijl 'up'
+en 'ready' verschijnen. Laat de builder stoppen als prerequisites mislukken.
+
+B06 — AFHANKELIJK/ONVOLLEDIG: Podman is geen equivalent SELinux-/tuninglab.
+Plaats: build-podman-lab.sh:9-21, 64-81 en 114-118.
+Rootless containers oefenen niet vanzelf het SELinux-beleid van een volledige
+VM, en hostbeveiliging/capabilities verschillen. Ook at/tuned/nice-oefeningen
+kunnen extra voorwaarden hebben. --systemd=always installeert systemd niet en
+garandeert geen werkende guest-diensten; controleer de concrete image/cgroups.
+Niet bewezen dat /sbin/init in de gekozen Rocky10-image ontbreekt: de officiële
+Rocky-imagepagina beschrijft juist systemd-ondersteuning, dus dat is hier geen
+vastgestelde fout. Nodocs in containerimages kan documentatie missen. [S16]
+De builder verwijdert bij create onvoorwaardelijk containers met de namen
+servera/serverb. Gebruik ownership-labels en weiger niet-eigen bestaande namen.
+
+B07 — FOUT: cloudbuilder bouwt niet de beloofde identieke topology/accounts.
+Plaats: build-cloud-lab.sh; data/rhcsa.json, cloud.body.
+GCP gebruikt shea, DigitalOcean/Vultr root, AWS rocky. Er is geen uniforme
+accountconfiguratie, /etc/hosts of vaste .10/.11-labtopology.
+GCP maakt alleen intern verkeer tussen getagde hosts mogelijk en regelt in
+dit script geen SSH-regel beperkt tot jouw bron-IP. DO/Vultr maken helemaal
+geen equivalente firewallregels of private netwerkconfiguratie.
+Vultr geeft uitsluitend instructies om later handmatig een blockvolume toe
+te voegen. De claim dat ieder platform alles automatisch opzet klopt niet.
+
+B08 — FOUT: cloud-destroy ruimt niet alle aangemaakte resources op.
+Plaats: build-cloud-lab.sh, alle DESTROY-takken.
+DO/Vultr verwijderen de genoemde VMs maar geen blockvolumes. AWS verwijdert
+instances maar geen keypair/securitygroup; DeleteOnTermination voor de extra
+EBS-disk wordt niet expliciet geregeld. GCP heeft auto-delete voor extra disk,
+maar gebruikt en verwijdert een vaste firewallnaam zonder ownership-check.
+Sleutelfile is vereist vóór destroy, hoewel resourceverwijdering die niet nodig
+heeft. Zoekresources op eigen IDs/tags, ruim expliciet op en rapporteer restanten.
+Verwijder geen resources op alleen een substring van servera/serverb.
+
+B09 — FOUT/ONBEVESTIGD: cloudfouten, selectors en kosten.
+Plaats: build-cloud-lab.sh:28 en providerfuncties; cloud/*.html.
+set -uo pipefail stopt niet automatisch na iedere fout. 'already exists' wordt
+bij meerdere verschillende CLI-fouten toch getoond. Daardoor kunnen halfgebouwde
+labs en facturering achterblijven. Controleer retourcodes en resource-eigendom.
+DO/Vultr kiezen de eerste geregistreerde SSH-key zonder matching met de lokale
+key. Controleer fingerprint/ID. Bevestig image-slugs, AMI-owner, instanceprijzen
+en actuele provider-CLI-opties per regio vóór gebruik; niet live uitgevoerd.
+$10-25/maand is niet onderbouwd voor alle standaard 4GB+2GB-configuraties.
+De cloudpagina's bevatten volledige scriptkopieën én soms functievoorbeelden;
+genereer deze consequent uit één bron om drift te voorkomen.
+
+B10 — ONVOLLEDIG: website-/releasevalidatie test geen labs.
+Plaats: README.md, VALIDATION.md, tools/build_labs.py.
+JSON-validatie, bash -n en Python-parsing vinden geen verkeerde repo, verkeerde
+NVMe-naam, defecte testverwachting of ontbrekende Apache-Directory-toegang.
+VALIDATION.md vermeldt terecht dat geen volledige gastinstallatie is bevestigd.
+Onderhoud brondefinities én gegenereerde HTML. Alle lab-HTML-codeblokken bevatten
+de bedoelde newlines; de samengevoegde opdrachten in een chatpaste betekenen
+niet dat het originele HTML al als één shellregel was geschreven.
+setup.sh is een publicatiescript dat een publieke GitHub-repo kan maken en
+alles committen; het is geen labinstaller. Niet uitgevoerd in deze controle.
+
+UITGEVOERDE VERIFICATIE
+- data/rhcsa.json parseert; twaalf weken en 99 checklisttaken aanwezig.
+- Python-bronbestanden inclusief ingesloten oude backups syntactisch geparseerd.
+- bash -n: alle actuele .sh/.command en aanwezige shellbackup slagen.
+- Codeblokken van alle twaalf HTML-labs vergeleken met LABS-brondefinities.
+  Elf weken komen overeen; week 3 heeft kleine Flatpak-verschillen.
+- Publieke primaire bronnen geraadpleegd voor examendoelen, systemd, SELinux,
+  Apache, DNF, hypervisors en aanvullende certificerings-/DoD-claims.
+- De zeven ingebedde week-11-scripts slagen voor bash -n.
+- args.sh met niet-numerieke count geeft in het origineel exit 0; het
+  vervangende voorbeeld geeft exit 1 en slaagt voor geldige invoer met spaties.
+- umask 033 levert in een nieuw geïsoleerd bestand werkelijk 644. De correcte
+  GRUB-sed-expressie werkt; de getypte variant geeft een syntaxfout.
+- Geen root- of installatiescripts uit het archief uitgevoerd.
+- Origineel archief behouden. SHA256:
+  c6ac409599a861fb748872eceb17e07919953aa2d6f7b5389bf8495f6ccf1a4b
+
+AANBEVOLEN VOLGORDE
+1. Gebruik de journal- en rootherstelcorrecties voor jouw huidige problemen.
+2. Herstel repositorybouw voordat je overige pakketten installeert.
+3. Kies bewust labadapter, extra NVMe-schijf en passende partitienamen.
+4. Herstel Apache-, timer- en firewallproeven zodat de resultaten betekenisvol zijn.
+5. Vul de ontbrekende leerdoelen in en voer de twaalf weken vervolgens werkelijk
+   op snapshots van twee Rocky10-gasten uit, inclusief rebootcontroles.
+
+PRIMAIRE BRONNEN — geraadpleegd op 2 oktober 2026
+S1 Red Hat: EX200-doelen en voorwaarden.
+https://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam
+S2 Red Hat: ontbrekende chroot in RHEL10-initramfs bij rd.break.
+Publieke probleemomschrijving; volledige oplossing vereist login.
+https://access.redhat.com/solutions/7121729
+S3 Red Hat: init=/bin/sh rootherstel, publieke probleemomschrijving.
+https://access.redhat.com/solutions/6983531
+S4 systemd v257: timerparser negeert ongeldige timerwaarden met waarschuwing.
+https://github.com/systemd/systemd/blob/v257/src/core/load-fragment.c
+S5 DNF download-plugin: standaarddirectory en --destdir.
+https://dnf-plugins-core.readthedocs.io/en/latest/download.html
+S6 Oracle VirtualBox 7.2: host-/guestarchitecturen.
+https://docs.oracle.com/en/virtualization/virtualbox/7.2/user/Introduction.html
+S7 VMware: gratis voor alle gebruikscategorieën.
+https://blogs.vmware.com/cloud-foundation/2024/11/11/vmware-fusion-and-workstation-are-now-free-for-all-users/
+S8 Linux Foundation: LFCS, prijs, simulator en doelen.
+https://training.linuxfoundation.org/certification/linux-foundation-certified-sysadmin-lfcs/
+S9 Killer.sh: LFCS-simulator beschikbaar.
+https://killer.sh/
+S10 DoDM 8140.03: qualification-framework.
+https://dodcio.defense.gov/Portals/0/Documents/Library/DoDM-8140-03.pdf
+S11 GNU Coreutils 9.5 id-bron: meerdere USER-argumenten.
+https://github.com/coreutils/coreutils/blob/v9.5/src/id.c
+S12 systemd v257: journald-configpaden, persistent/volatile en flush.
+https://github.com/systemd/systemd/blob/v257/man/journald.conf.xml
+S13 systemd v257: netwerkfilesystemdetectie en _netdev.
+https://github.com/systemd/systemd/blob/v257/man/systemd.mount.xml
+S14 Red Hat RHEL10: SELinux-contexten en hulpmiddelen.
+https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/using_selinux/getting-started-with-selinux
+S15 Apache 2.4: Directory-toegangscontrole.
+https://httpd.apache.org/docs/2.4/howto/access.html
+S16 Rocky Linux: officiële containerdocumentatie, systemd en nodocs.
+https://hub.docker.com/r/rockylinux/rockylinux
+
+Dit rapport corrigeert de concrete aangeleverde versie. Het is geen volledige
+vervanging van de cursus en geen bewijs van een geslaagde uitvoering van de labs.
